@@ -17,8 +17,8 @@ export class SongsService {
     return this.prisma.song.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.song.findUnique({where:{id}});
+  findOne(where: Prisma.SongWhereUniqueInput) {
+    return this.prisma.song.findUnique({where: where});
   }
 
   update(where: Prisma.SongWhereUniqueInput, updateSongDto: Prisma.SongUpdateInput) {
@@ -28,7 +28,7 @@ export class SongsService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} song`;
+  remove(where: Prisma.SongWhereUniqueInput) {
+    return this.prisma.song.delete({where})
   }
 }

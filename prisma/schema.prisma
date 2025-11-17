@@ -17,4 +17,12 @@ datasource db {
 model Song{
   id Int @id @default(autoincrement())
   title String
+  artist Artist? @relation(fields:[artistId], reference:[id])\
+  artistId int?
+}
+
+model Artist {
+  id Int @id @default(autoincrement())
+  name String
+  song Song[]
 }

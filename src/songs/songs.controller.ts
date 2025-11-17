@@ -21,7 +21,7 @@ export class SongsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.songsService.findOne(+id);
+    return this.songsService.findOne({id:+id});
   }
 
   @Patch(':id')
@@ -31,6 +31,6 @@ export class SongsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.songsService.remove(+id);
+    return this.songsService.remove({id:+id});
   }
 }
