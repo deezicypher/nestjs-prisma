@@ -7,14 +7,14 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class SongsService {
   constructor(private prisma: PrismaService){}
-  create(createSongDto: Prisma.SongCreateInput) {
+  create(createSongDto: Prisma.SongUncheckedCreateInput) {
     return this.prisma.song.create({
       data:createSongDto
     })
   }
 
   findAll() {
-    return this.prisma.song.findMany();
+    return this.prisma.song.findMany({include: {artist:true}});
   }
 
   findOne(where: Prisma.SongWhereUniqueInput) {
