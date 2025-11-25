@@ -14,12 +14,21 @@ export class SongsService {
     })
   }
 
-  findAll() {
-    return this.prisma.song.findMany({include: {artist:true}});
+  findAll(where:Prisma.SongWhereInput) {
+    return this.prisma.song.findMany({where,
+      include: {
+    categories: {
+      include: {
+        category: true
+      }
+    }
+  }
+    })
+    //return this.prisma.song.findMany({include: {artist:true,categories:true}});
   }
 
   findOne(where: Prisma.SongWhereUniqueInput) {
-    return this.prisma.song.findUnique({where: where});
+    return this.prisma.song.findUnique({where});
   }
 
   update(where: Prisma.SongWhereUniqueInput, updateSongDto: Prisma.SongUpdateInput) {

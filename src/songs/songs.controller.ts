@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song.dto';
 import { UpdateSongDto } from './dto/update-song.dto';
@@ -16,8 +16,19 @@ export class SongsController {
   }
 
   @Get()
-  findAll() {
-    return this.songsService.findAll();
+  findAll(@Query('category') category?:string) {
+    return this.songsService.findAll({
+      categories: category?
+      {
+          some: {
+            category: {
+              name: category
+            }
+          }
+        }
+        :
+        undefined
+   } );
   }
 
   @Get(':id')
