@@ -16,7 +16,7 @@ export class ArtistsService {
   }
 
   findAll() {
-    return `This action returns all artists`;
+    return this.prisma.artist.findMany();
   }
 
   findOne(id: number) {

@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'generated/prisma';
+
 
 @Controller('artists')
 export class ArtistsController {

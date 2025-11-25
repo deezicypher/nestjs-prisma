@@ -19,6 +19,25 @@ model Song{
   title String
   artist Artist? @relation(fields:[artistId], references:[id])
   artistId Int?
+  categories CategoriesOnSongs[]
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+  song CategoriesOnSongs[]
+}
+
+model CategoriesOnSongs {
+  song Song @relation(fields:[songId], references:[id])
+  songId Int
+  category Category @relation(fields:[categoryId], references:[id])
+  categoryId Int
+
+  assignedBy String
+  assignedAt DateTime @default(now())
+
+  @@id([songId,categoryId])
 }
 
 model Artist {
