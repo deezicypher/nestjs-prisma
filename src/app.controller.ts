@@ -48,8 +48,12 @@ export class AppController {
       destination: './upload/files',
       filename: (req, file, cb) => {
       cb(null, file.originalname);
-      },
-      }),}),
+      }}),
+      limits:{
+        fileSize:200_000
+      }
+      }
+    )
     )
     uploadFileWithValidation(
     @UploadedFile( new ParseFilePipe({validators:[
