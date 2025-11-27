@@ -1,6 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, ParseFilePipe, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import {
+HttpStatus,
+ParseFilePipeBuilder,
+UploadedFile,
+UseInterceptors,
+} from '@nestjs/common';
+import { IsPngValidator } from './validators/is-png.validator';
+
+
 
 @Controller()
 export class AppController {
@@ -22,4 +33,38 @@ export class AppController {
       this.prisma.application.findMany(),
     ])
   }
+
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file',))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  console.log(file);
+  }
+
+  @Post('upload-png')
+    @UseInterceptors(
+      FileInterceptor('file', {
+      storage: diskStorage({
+      destination: './upload/files',
+      filename: (req, file, cb) => {
+      cb(null, file.originalname);
+      },
+      }),}),
+    )
+    uploadFileWithValidation(
+    @UploadedFile( new ParseFilePipe({validators:[
+      new IsPngValidator()
+    ],
+   errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,})
+
+  
+    )
+    file: Express.Multer.File,
+    ) {
+    console.log(file);
+    return {
+    messge: 'file uploaded successfully!',
+    };
+    }
+
 }
