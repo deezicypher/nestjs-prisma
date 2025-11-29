@@ -20,6 +20,7 @@ model Song{
   artist Artist? @relation(fields:[artistId], references:[id])
   artistId Int?
   categories CategoriesOnSongs[]
+  filePath    String? 
 }
 
 model Category {

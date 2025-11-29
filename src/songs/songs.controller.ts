@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile, ParseFilePipe, HttpStatus, BadRequestException } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song.dto';
 import { UpdateSongDto } from './dto/update-song.dto';
 import { Prisma } from 'generated/prisma';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { IsPngValidator } from 'src/validators/is-png.validator';
 
 
 
@@ -11,8 +14,39 @@ export class SongsController {
   constructor(private readonly songsService: SongsService) {}
 
   @Post()
-  create(@Body() createSongDto: Prisma.SongUncheckedCreateInput) {
-    return this.songsService.create(createSongDto);
+  @UseInterceptors(
+    FileInterceptor('file',{
+      storage:diskStorage({
+      destination: './upload/covers',
+      filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+      }
+      }),
+      limits: {
+        fileSize:200_000
+      }
+}
+)
+  )
+  async create(@Body() createSongDto: CreateSongDto,
+  @UploadedFile(new ParseFilePipe(
+    {
+      validators:[
+        new IsPngValidator(),
+        
+      ],
+      exceptionFactory: () => 
+        new BadRequestException('File is required and must be a valid type'),
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+    }
+  ))
+  file: Express.Multer.File
+) {
+    if(!file) throw new BadRequestException('File is required')
+    const filePath = `/upload/covers/${file.filename}`
+
+
+    return this.songsService.create({...createSongDto, filePath});
   }
 
   @Get()

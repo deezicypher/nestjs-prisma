@@ -8,9 +8,44 @@ import { Prisma } from 'generated/prisma';
 @Injectable()
 export class SongsService {
   constructor(private prisma: PrismaService){}
-  create(createSongDto: Prisma.SongUncheckedCreateInput) {
+
+  create(createSongDto: CreateSongDto & {filePath:string}) {
+     const { categories,artistId,...songData } = createSongDto;
+
+    const prismaCategories = categories
+        ?.map(c => {
+          if (c.category?.create) {
+            return {
+              assignedBy: c.assignedBy ?? 'system',
+              category: { create: { name: c.category.create.name } },
+            };
+          }
+
+          if (c.category?.connect) {
+            return {
+              assignedBy: c.assignedBy ?? 'system',
+              category: { connect: { id: c.category.connect.id } },
+            };
+          }
+
+    
+          return null;
+        })
+         .filter(
+          (c): c is { assignedBy: string; category: any } => c !== null
+        );
+
+
     return this.prisma.song.create({
-      data:createSongDto
+      data:{
+        ...songData,
+        artist: createSongDto.artistId
+        ? { connect: { id: Number(createSongDto.artistId) } }
+        : undefined,
+         categories: prismaCategories?.length
+      ? { create: prismaCategories }
+      : undefined,
+      }
     })
   }
 
