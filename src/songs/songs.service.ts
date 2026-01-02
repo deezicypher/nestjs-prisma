@@ -12,42 +12,39 @@ export class SongsService {
   create(createSongDto: CreateSongDto & {filePath:string}) {
      const { categories,artistId,...songData } = createSongDto;
 
+ 
+
+    // map array DTO to Prisma nested create
     const prismaCategories = categories
-        ?.map(c => {
-          if (c.category?.create) {
-            return {
-              assignedBy: c.assignedBy ?? 'system',
-              category: { create: { name: c.category.create.name } },
-            };
-          }
+      ?.map((c) => {
+        if (c.category?.create) {
+          return {
+            assignedBy: c.assignedBy ?? 'system',
+            category: { create: { name: c.category.create.name } },
+          };
+        }
+        if (c.category?.connect) {
+          return {
+            assignedBy: c.assignedBy ?? 'system',
+            category: { connect: { id: c.category.connect.id } },
+          };
+        }
+        return null;
+      })
+      .filter((c): c is { assignedBy: string; category: any } => c !== null);
 
-          if (c.category?.connect) {
-            return {
-              assignedBy: c.assignedBy ?? 'system',
-              category: { connect: { id: c.category.connect.id } },
-            };
-          }
+    const prismaData: any = {
+      ...songData,
+      categories: prismaCategories?.length ? { create: prismaCategories } : undefined,
+    };
 
-    
-          return null;
-        })
-         .filter(
-          (c): c is { assignedBy: string; category: any } => c !== null
-        );
+    if (artistId) {
+      prismaData.artist = { connect: { id: artistId } };
+    }
 
-
-    return this.prisma.song.create({
-      data:{
-        ...songData,
-        artist: createSongDto.artistId
-        ? { connect: { id: Number(createSongDto.artistId) } }
-        : undefined,
-         categories: prismaCategories?.length
-      ? { create: prismaCategories }
-      : undefined,
-      }
-    })
+    return this.prisma.song.create({ data: prismaData });
   }
+  
 
   findAll(where:Prisma.SongWhereInput) {
     return this.prisma.song.findMany({where,
